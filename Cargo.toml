@@ -1,6 +1,8 @@
 [package]
-name = "raytracer"
+name = "pathtracer"
 version = "0.1.0"
+authors = ["Dhruv Deshpande <dhrv.d@proton.me>"]
+license = "MIT"
 edition = "2021"
 
 [dependencies]
