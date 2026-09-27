@@ -67,6 +67,6 @@ impl Noise {
 
 impl Texture for Noise {
     fn value(&self, _uv: (f32, f32), point: &Vec3) -> Vec3 {
-        Vec3::ONES * 0.5 * (1.0 + self.perlin.noise(&(*point * self.scale)))
+        Vec3::ONES * self.perlin.turbulence(point, 7)
     }
 }
