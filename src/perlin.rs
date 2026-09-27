@@ -25,9 +25,18 @@ impl Perlin {
     }
 
     pub fn noise(&self, point: &Vec3) -> f32 {
-        let u = point.x - f32::floor(point.x);
-        let v = point.y - f32::floor(point.y);
-        let w = point.z - f32::floor(point.z);
+        let u = {
+            let u = point.x - f32::floor(point.x);
+            u * u * (3.0 - 2.0 * u)
+        };
+        let v = {
+            let v = point.y - f32::floor(point.y);
+            v * v * (3.0 - 2.0 * v)
+        };
+        let w = {
+            let w = point.z - f32::floor(point.z);
+            w * w * (3.0 - 2.0 * w)
+        };
 
         let i = f32::floor(point.x) as i32;
         let j = f32::floor(point.y) as i32;
