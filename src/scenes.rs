@@ -109,7 +109,7 @@ pub fn checkered_spheres(image_width: u32, image_height: u32) -> (HittableList, 
 pub fn perlin_spheres(image_width: u32, image_height: u32) -> (HittableList, Camera) {
     let mut world = HittableList::new(Vec::new());
 
-    let perlin_texture = Box::new(Noise::new());
+    let perlin_texture = Box::new(Noise::new(4.0));
     let material: Arc<dyn Material> = Arc::new(Lambertian::new(perlin_texture));
 
     world.add(Box::new(Sphere::new(
