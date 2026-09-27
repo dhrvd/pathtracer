@@ -1,4 +1,5 @@
 use crate::math::Vec3;
+use crate::perlin::Perlin;
 
 pub trait Texture {
     fn value(&self, uv: (f32, f32), point: &Vec3) -> Vec3;
@@ -47,5 +48,23 @@ impl Texture for Checkered {
         } else {
             self.odd.value(uv, point)
         }
+    }
+}
+
+pub struct Noise {
+    perlin: Perlin,
+}
+
+impl Noise {
+    pub fn new() -> Self {
+        Self {
+            perlin: Perlin::new(),
+        }
+    }
+}
+
+impl Texture for Noise {
+    fn value(&self, _uv: (f32, f32), point: &Vec3) -> Vec3 {
+        Vec3::ONES * self.perlin.noise(point)
     }
 }

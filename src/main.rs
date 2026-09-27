@@ -5,6 +5,7 @@ mod hittable;
 mod material;
 mod math;
 mod objects;
+mod perlin;
 mod render;
 mod scenes;
 mod texture;
@@ -17,7 +18,7 @@ const SAMPLES_PER_PIXEL: u32 = 100;
 const MAX_DEPTH: u32 = 50;
 
 fn main() {
-    let (world, camera) = scenes::checkered_spheres(IMAGE_WIDTH, IMAGE_HEIGHT);
+    let (world, camera) = scenes::perlin_spheres(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     render::render(
         camera,

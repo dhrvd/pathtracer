@@ -6,6 +6,8 @@ use crate::hittable::{Hittable, HittableList};
 use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::math::{degrees_to_radians, random, random_rng, random_vec3, vec3, Vec3};
 use crate::objects::Sphere;
+use crate::texture::Noise;
+use crate::IMAGE_WIDTH;
 
 pub fn bouncing_spheres(image_width: u32, image_height: u32) -> (BVHNode, Camera) {
     let mut world: Vec<Box<dyn Hittable>> = Vec::new();
@@ -88,6 +90,37 @@ pub fn checkered_spheres(image_width: u32, image_height: u32) -> (HittableList, 
     world.add(Box::new(Sphere::new(
         vec3(0.0, 10.0, 0.0),
         10.0,
+        Arc::clone(&material),
+    )));
+
+    let camera = Camera::new(
+        vec3(13.0, 2.0, 3.0),
+        Vec3::ZEROS,
+        vec3(0.0, 1.0, 0.0),
+        degrees_to_radians(20.0),
+        degrees_to_radians(0.0),
+        1.0,
+        (image_width, image_height),
+    );
+
+    (world, camera)
+}
+
+pub fn perlin_spheres(image_width: u32, image_height: u32) -> (HittableList, Camera) {
+    let mut world = HittableList::new(Vec::new());
+
+    let perlin_texture = Box::new(Noise::new());
+    let material: Arc<dyn Material> = Arc::new(Lambertian::new(perlin_texture));
+
+    world.add(Box::new(Sphere::new(
+        vec3(0.0, -1000.0, 0.0),
+        1000.0,
+        Arc::clone(&material),
+    )));
+
+    world.add(Box::new(Sphere::new(
+        vec3(0.0, 2.0, 0.0),
+        2.0,
         Arc::clone(&material),
     )));
 
