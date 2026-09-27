@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::aabb::Aabb;
 use crate::hittable::{HitRecord, Hittable};
 use crate::material::Material;
-use crate::math::{Ray, Vec3};
+use crate::math::{Ray, Vec3, PI};
 
 pub struct Sphere {
     center: Ray,
@@ -26,6 +26,13 @@ impl Sphere {
             radius,
             material,
         }
+    }
+
+    pub fn get_sphere_uv(point: Vec3) -> (f32, f32) {
+        let theta = (-point.y).acos();
+        let phi = (-point.z).atan2(point.x) + PI;
+
+        (phi / (2.0 * PI), theta / PI)
     }
 }
 
@@ -57,12 +64,14 @@ impl Hittable for Sphere {
 
         let point = ray.at(root);
         let outward_normal = (point - current_center) / self.radius;
+        let uv = Sphere::get_sphere_uv(outward_normal);
 
         Some(HitRecord::new(
             point,
             outward_normal,
             ray,
             root,
+            uv,
             Arc::clone(&self.material),
         ))
     }
