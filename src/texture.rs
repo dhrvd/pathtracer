@@ -1,4 +1,4 @@
-use crate::math::Vec3;
+use crate::math::{vec3, Vec3};
 use crate::perlin::Perlin;
 
 pub trait Texture {
@@ -67,6 +67,7 @@ impl Noise {
 
 impl Texture for Noise {
     fn value(&self, _uv: (f32, f32), point: &Vec3) -> Vec3 {
-        Vec3::ONES * self.perlin.turbulence(point, 7)
+        vec3(0.5, 0.5, 0.5)
+            * (1.0 + f32::sin(self.scale * point.z + 10.0 * self.perlin.turbulence(point, 7)))
     }
 }
