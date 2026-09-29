@@ -89,3 +89,29 @@ impl Hittable for Sphere {
         box1.join(&box2)
     }
 }
+
+pub struct Quad {
+    Q: Vec3,
+    u: Vec3,
+    v: Vec3,
+    material: Arc<dyn Material>,
+}
+
+impl Quad {
+    pub fn new(Q: Vec3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
+        Self { Q, u, v, material }
+    }
+}
+
+impl Hittable for Quad {
+    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32) -> Option<HitRecord> {
+        todo!()
+    }
+
+    fn aabb(&self) -> Aabb {
+        let box_diag1 = Aabb::new(self.Q, self.Q + self.u + self.v);
+        let box_diag2 = Aabb::new(self.Q + self.u, self.Q + self.v);
+
+        box_diag1.join(&box_diag2)
+    }
+}

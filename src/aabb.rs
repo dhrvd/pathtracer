@@ -12,8 +12,28 @@ impl Aabb {
         max: Vec3::from_v(f32::NEG_INFINITY),
     };
 
+    fn pad_to_minimums(&mut self) {
+        let delta = 0.001;
+
+        if (self.max.x - self.min.x) < delta {
+            self.max.x += delta / 2.0;
+            self.min.x -= delta / 2.0;
+        }
+        if (self.max.y - self.min.y) < delta {
+            self.max.y += delta / 2.0;
+            self.min.y -= delta / 2.0;
+        }
+        if (self.max.z - self.min.z) < delta {
+            self.max.z += delta / 2.0;
+            self.min.z -= delta / 2.0;
+        }
+    }
+
     pub fn new(min: Vec3, max: Vec3) -> Self {
-        Self { min, max }
+        let mut aabb = Self { min, max }
+
+        aabb.pad_to_minimums();
+        aabb
     }
 
     pub fn join(&self, other: &Self) -> Self {

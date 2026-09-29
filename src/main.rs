@@ -10,7 +10,7 @@ mod render;
 mod scenes;
 mod texture;
 
-const IMAGE_WIDTH: u32 = 400;
+const IMAGE_WIDTH: u32 = 400 * 4;
 const ASPECT_RATIO: f32 = 16.0 / 9.0;
 const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as u32;
 
