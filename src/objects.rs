@@ -94,18 +94,68 @@ pub struct Quad {
     Q: Vec3,
     u: Vec3,
     v: Vec3,
+    w: Vec3,
     material: Arc<dyn Material>,
+    normal: Vec3,
+    D: f32,
 }
 
 impl Quad {
     pub fn new(Q: Vec3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
-        Self { Q, u, v, material }
+        let normal = (u * v).normalize();
+        let D = normal.dot(Q);
+        let w = normal / normal.dot(normal);
+
+        Self {
+            Q,
+            u,
+            v,
+            w,
+            material,
+            normal,
+            D,
+        }
+    }
+
+    fn is_interior(a: f32, b: f32) -> bool {
+            true
+        } else {
+            Some((a, b))
+        }
     }
 }
 
 impl Hittable for Quad {
     fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32) -> Option<HitRecord> {
-        todo!()
+        let denom = self.normal.dot(ray.direction);
+
+        if denom.abs() < 1e-8 {
+            return None;
+        };
+
+        let t = (self.D - self.normal.dot(ray.origin)) / denom;
+        if !(ray_tmin < t && t < ray_tmax) {
+            return None;
+        }
+
+        let intersection = ray.at(t);
+
+        let planar_hitpt = intersection - self.Q;
+        let a = self.w.dot(planar_hitpt * self.v);
+        let b = self.w.dot(self.u * planar_hitpt);
+
+        if !(0.0 < a && a < 1.0) || !(0.0 < b && b < 1.0) {
+            return None;
+        }
+
+        Some(HitRecord::new(
+            intersection,
+            self.normal,
+            ray,
+            t,
+            (a, b),
+            Arc::clone(&self.material),
+        ))
     }
 
     fn aabb(&self) -> Aabb {
