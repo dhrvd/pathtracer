@@ -5,9 +5,8 @@ use crate::camera::Camera;
 use crate::hittable::{Hittable, HittableList};
 use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::math::{degrees_to_radians, random, random_rng, random_vec3, vec3, Vec3};
-use crate::objects::Sphere;
+use crate::objects::{Quad, Sphere};
 use crate::texture::Noise;
-use crate::IMAGE_WIDTH;
 
 pub fn bouncing_spheres(image_width: u32, image_height: u32) -> (BVHNode, Camera) {
     let mut world: Vec<Box<dyn Hittable>> = Vec::new();
@@ -130,6 +129,63 @@ pub fn perlin_spheres(image_width: u32, image_height: u32) -> (HittableList, Cam
         vec3(0.0, 1.0, 0.0),
         degrees_to_radians(20.0),
         degrees_to_radians(0.0),
+        1.0,
+        (image_width, image_height),
+    );
+
+    (world, camera)
+}
+
+pub fn quads(image_width: u32, image_height: u32) -> (HittableList, Camera) {
+    let mut world = HittableList::new(Vec::new());
+
+    let left_red = Arc::new(Lambertian::solid(vec3(1.0, 0.2, 0.2)));
+    let back_green = Arc::new(Lambertian::solid(vec3(0.2, 1.0, 0.2)));
+    let right_blue = Arc::new(Lambertian::solid(vec3(0.2, 0.2, 1.0)));
+    let upper_orange = Arc::new(Lambertian::solid(vec3(1.0, 0.5, 0.0)));
+    let lower_teal = Arc::new(Lambertian::solid(vec3(0.2, 0.8, 0.8)));
+
+    world.add(Box::new(Quad::new(
+        vec3(-3.0, -2.0, 5.0),
+        vec3(0.0, 0.0, -4.0),
+        vec3(0.0, 4.0, 0.0),
+        left_red,
+    )));
+
+    world.add(Box::new(Quad::new(
+        vec3(-2.0, -2.0, 0.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 4.0, 0.0),
+        back_green,
+    )));
+
+    world.add(Box::new(Quad::new(
+        vec3(3.0, -2.0, 1.0),
+        vec3(0.0, 0.0, 4.0),
+        vec3(0.0, 4.0, 0.0),
+        right_blue,
+    )));
+
+    world.add(Box::new(Quad::new(
+        vec3(-2.0, 3.0, 1.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 0.0, 4.0),
+        upper_orange,
+    )));
+
+    world.add(Box::new(Quad::new(
+        vec3(-2.0, -3.0, 5.0),
+        vec3(4.0, 0.0, 0.0),
+        vec3(0.0, 0.0, -4.0),
+        lower_teal,
+    )));
+
+    let camera = Camera::new(
+        vec3(0.0, 0.0, 9.0),
+        Vec3::ZEROS,
+        vec3(0.0, 1.0, 0.0),
+        80.0,
+        0.0,
         1.0,
         (image_width, image_height),
     );

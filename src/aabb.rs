@@ -30,9 +30,9 @@ impl Aabb {
     }
 
     pub fn new(min: Vec3, max: Vec3) -> Self {
-        let mut aabb = Self { min, max }
-
+        let mut aabb = Self { min, max };
         aabb.pad_to_minimums();
+
         aabb
     }
 

@@ -102,9 +102,10 @@ pub struct Quad {
 
 impl Quad {
     pub fn new(Q: Vec3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
-        let normal = (u * v).normalize();
+        let n = u.cross(v);
+        let normal = n.normalize();
         let D = normal.dot(Q);
-        let w = normal / normal.dot(normal);
+        let w = n / n.dot(n);
 
         Self {
             Q,
@@ -114,13 +115,6 @@ impl Quad {
             material,
             normal,
             D,
-        }
-    }
-
-    fn is_interior(a: f32, b: f32) -> bool {
-            true
-        } else {
-            Some((a, b))
         }
     }
 }
@@ -141,8 +135,8 @@ impl Hittable for Quad {
         let intersection = ray.at(t);
 
         let planar_hitpt = intersection - self.Q;
-        let a = self.w.dot(planar_hitpt * self.v);
-        let b = self.w.dot(self.u * planar_hitpt);
+        let a = self.w.dot(planar_hitpt.cross(self.v));
+        let b = self.w.dot(self.u.cross(planar_hitpt));
 
         if !(0.0 < a && a < 1.0) || !(0.0 < b && b < 1.0) {
             return None;
@@ -163,5 +157,38 @@ impl Hittable for Quad {
         let box_diag2 = Aabb::new(self.Q + self.u, self.Q + self.v);
 
         box_diag1.join(&box_diag2)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::material::Lambertian;
+    use crate::math::vec3;
+
+    fn test_quad() -> Quad {
+        Quad::new(
+            vec3(-2.0, -2.0, 0.0),
+            vec3(4.0, 0.0, 0.0),
+            vec3(0.0, 4.0, 0.0),
+            Arc::new(Lambertian::solid(vec3(0.2, 1.0, 0.2))),
+        )
+    }
+
+    #[test]
+    fn quad_is_hit_inside_its_bounds() {
+        let ray = Ray::new(vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), 0.0);
+        let hit = test_quad().hit(&ray, 0.001, f32::INFINITY).unwrap();
+
+        assert!((hit.t - 1.0).abs() < f32::EPSILON);
+        assert!((hit.uv.0 - 0.5).abs() < f32::EPSILON);
+        assert!((hit.uv.1 - 0.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn quad_is_not_hit_outside_its_bounds() {
+        let ray = Ray::new(vec3(3.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), 0.0);
+
+        assert!(test_quad().hit(&ray, 0.001, f32::INFINITY).is_none());
     }
 }
