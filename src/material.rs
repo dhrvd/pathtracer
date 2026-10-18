@@ -4,6 +4,10 @@ use crate::texture::{Checkered, Solid, Texture};
 
 pub trait Material {
     fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<(Vec3, Ray)>;
+
+    fn emitted(&self, _uv: (f32, f32), _point: Vec3) -> Vec3 {
+        Vec3::ZEROS
+    }
 }
 
 pub struct Lambertian {
@@ -124,4 +128,30 @@ fn reflectance(cosine: f32, refraction_index: f32) -> f32 {
     r0 = r0 * r0;
 
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
+pub struct DiffuseLight {
+    texture: Box<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn new(texture: Box<dyn Texture>) -> Self {
+        Self { texture }
+    }
+
+    pub fn solid(emit: Vec3) -> Self {
+        Self {
+            texture: Box::new(Solid::new(emit)),
+        }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Vec3, Ray)> {
+        None
+    }
+
+    fn emitted(&self, uv: (f32, f32), point: Vec3) -> Vec3 {
+        self.texture.value(uv, &point)
+    }
 }

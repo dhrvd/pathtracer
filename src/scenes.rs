@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::bvh::BVHNode;
 use crate::camera::Camera;
 use crate::hittable::{Hittable, HittableList};
-use crate::material::{Dielectric, Lambertian, Material, Metal};
+use crate::material::{Dielectric, DiffuseLight, Lambertian, Material, Metal};
 use crate::math::{degrees_to_radians, random, random_rng, random_vec3, vec3, Vec3};
 use crate::objects::{Quad, Sphere};
 use crate::texture::Noise;
@@ -67,6 +67,7 @@ pub fn bouncing_spheres(image_width: u32, image_height: u32) -> (BVHNode, Camera
         degrees_to_radians(0.6),
         10.0,
         (image_width, image_height),
+        vec3(0.7, 0.8, 1.0),
     );
 
     (world, camera)
@@ -100,6 +101,7 @@ pub fn checkered_spheres(image_width: u32, image_height: u32) -> (HittableList, 
         degrees_to_radians(0.0),
         1.0,
         (image_width, image_height),
+        vec3(0.7, 0.8, 1.0),
     );
 
     (world, camera)
@@ -131,6 +133,40 @@ pub fn perlin_spheres(image_width: u32, image_height: u32) -> (HittableList, Cam
         degrees_to_radians(0.0),
         1.0,
         (image_width, image_height),
+        vec3(0.7, 0.8, 1.0),
+    );
+
+    (world, camera)
+}
+
+pub fn simple_light(image_width: u32, image_height: u32) -> (HittableList, Camera) {
+    let mut world = HittableList::new(Vec::new());
+
+    let material: Arc<dyn Material> = Arc::new(Lambertian::new(Box::new(Noise::new(4.0))));
+    world.add(Box::new(Sphere::new(
+        vec3(0.0, -1000.0, 0.0),
+        1000.0,
+        Arc::clone(&material),
+    )));
+    world.add(Box::new(Sphere::new(vec3(0.0, 2.0, 0.0), 2.0, material)));
+
+    let light = Arc::new(DiffuseLight::solid(vec3(4.0, 4.0, 4.0)));
+    world.add(Box::new(Quad::new(
+        vec3(3.0, 1.0, -2.0),
+        vec3(2.0, 0.0, 0.0),
+        vec3(0.0, 2.0, 0.0),
+        light,
+    )));
+
+    let camera = Camera::new(
+        vec3(26.0, 3.0, 6.0),
+        vec3(0.0, 2.0, 0.0),
+        vec3(0.0, 1.0, 0.0),
+        degrees_to_radians(20.0),
+        0.0,
+        10.0,
+        (image_width, image_height),
+        Vec3::ZEROS,
     );
 
     (world, camera)
@@ -188,6 +224,7 @@ pub fn quads(image_width: u32, image_height: u32) -> (HittableList, Camera) {
         0.0,
         1.0,
         (image_width, image_height),
+        vec3(0.7, 0.8, 1.0),
     );
 
     (world, camera)

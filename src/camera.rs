@@ -21,6 +21,7 @@ pub struct Camera {
     defocus_angle: f32,
     defocus_disk_u: Vec3,
     defocus_disk_v: Vec3,
+    background: Vec3,
 }
 
 impl Camera {
@@ -32,6 +33,7 @@ impl Camera {
         defocus_angle: f32,
         focus_dist: f32,
         image_size: (u32, u32),
+        background: Vec3,
     ) -> Self {
         let viewport_height = 2.0 * focus_dist * (vfov / 2.0).tan();
         let viewport_width = viewport_height * (image_size.0 as f32 / image_size.1 as f32);
@@ -60,7 +62,12 @@ impl Camera {
             defocus_angle,
             defocus_disk_u: u * defocus_radius,
             defocus_disk_v: v * defocus_radius,
+            background,
         }
+    }
+
+    pub fn background(&self) -> Vec3 {
+        self.background
     }
 
     pub fn get_ray(&self, i: u32, j: u32) -> Ray {

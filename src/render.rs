@@ -3,25 +3,24 @@ use indicatif::{ProgressBar, ProgressStyle};
 
 use crate::camera::Camera;
 use crate::hittable::Hittable;
-use crate::math::{linear_to_gamma, vec3, Ray, Vec3, INFINITY};
+use crate::math::{linear_to_gamma, Ray, Vec3, INFINITY};
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: u32) -> Vec3 {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: u32, background: Vec3) -> Vec3 {
     if depth == 0 {
         return Vec3::ZEROS;
     }
 
-    if let Some(rec) = world.hit(ray, 0.001, INFINITY) {
-        if let Some((attenuation, scattered)) = rec.material.scatter(ray, &rec) {
-            return ray_color(&scattered, world, depth - 1) * attenuation;
-        }
+    let Some(rec) = world.hit(ray, 0.001, INFINITY) else {
+        return background;
+    };
 
-        return Vec3::ZEROS;
-    }
+    let emitted = rec.material.emitted(rec.uv, rec.point);
 
-    let unit_direction = ray.direction.normalize();
-    let a = (unit_direction.y + 1.0) * 0.5;
+    let Some((attenuation, scattered)) = rec.material.scatter(ray, &rec) else {
+        return emitted;
+    };
 
-    Vec3::ONES * (1.0 - a) + vec3(0.5, 0.7, 1.0) * a
+    emitted + attenuation * ray_color(&scattered, world, depth - 1, background)
 }
 
 pub fn render<H: Hittable>(
@@ -46,7 +45,12 @@ pub fn render<H: Hittable>(
         for i in 0..size.0 {
             let mut color = Vec3::ZEROS;
             for _ in 0..samples_per_pixel {
-                color += ray_color(&camera.get_ray(i, j), &world, max_depth)
+                color += ray_color(
+                    &camera.get_ray(i, j),
+                    &world,
+                    max_depth,
+                    camera.background(),
+                )
             }
             color /= samples_per_pixel as f32;
 

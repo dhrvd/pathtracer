@@ -18,7 +18,7 @@ const SAMPLES_PER_PIXEL: u32 = 100;
 const MAX_DEPTH: u32 = 50;
 
 fn main() {
-    let (world, camera) = scenes::quads(IMAGE_WIDTH, IMAGE_HEIGHT);
+    let (world, camera) = scenes::simple_light(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     render::render(
         camera,
